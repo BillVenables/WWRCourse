@@ -1,0 +1,37 @@
+Package: WWRCourse
+Type: Package
+Title: Working with R Course Software and Data
+Version: 0.2.2
+Author: Bill Venables
+Maintainer: Bill Venables <Bill.Venables@gmail.com>
+Description: As the title says.  Undocumented here, but explained as
+  needed in the workshop.
+License: GPL (>= 2)
+Encoding: UTF-8
+LazyData: true
+Imports: 
+    SOAR, 
+    lazyData, 
+    iterators, 
+    xtable, 
+    PBSmapping, 
+    randomForest, 
+    rpart,
+    fractional,
+    english
+Suggests: 
+    knitr,
+    rmarkdown
+Depends: 
+    R (>= 3.5.0),
+    methods,
+    graphics, 
+    grDevices, 
+    utils, 
+    stats, 
+    tidyverse, 
+    WWRGraphics, 
+    WWRUtilities
+NeedsCompilation: no
+RoxygenNote: 7.1.1
+VignetteBuilder: knitr
