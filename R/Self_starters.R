@@ -215,3 +215,45 @@ SSstormer <- structure(function (v, w, b, c) {
   b <- coef(lm(I(w*t) ~ 0 + v + t))
   setNames(b, mCall[c("b", "c")])
 }, pnames = c("b", "c"), class = "selfStart")
+
+#' Simulation method for non-linear models
+#' 
+#' This method function is based on stats:::simulate.lm and has simular functionality
+#'
+#' @param object A fitted model object
+#' @param nsim The number of simulated response variable simulations required
+#' @param seed An optional seed for the random number generator
+#' @param ... additional arguments used by other methods.
+#'
+#' @return  A data frame with of size n x nsim, with columns the simulated response variables
+#' @export
+#'
+#' @examples
+#' fm <- nls(Time ~ SSstormer(Viscosity, Weight, beta, theta), data = Stormer)
+#' Times <- simulate(fm, 10, seed = 2021)
+#' 
+simulate.nls <- function (object, nsim = 1, seed = NULL, ...) {
+  if (!exists(".Random.seed", envir = .GlobalEnv, inherits = FALSE)) 
+    runif(1)
+  if (is.null(seed)) 
+    RNGstate <- get(".Random.seed", envir = .GlobalEnv)
+  else {
+    R.seed <- get(".Random.seed", envir = .GlobalEnv)
+    set.seed(seed)
+    RNGstate <- structure(seed, kind = as.list(RNGkind()))
+    on.exit(assign(".Random.seed", R.seed, envir = .GlobalEnv))
+  }
+  ftd <- fitted(object)
+  n <- length(ftd)
+  nm <- names(ftd)
+  ntot <- n * nsim
+  vars <- deviance(object)/df.residual(object)
+  if (!(is.null(w <- object$weights) || (length(w) == 1L && w == 1))) vars <- vars/w
+  val <- ftd + rnorm(ntot, sd = sqrt(vars))
+  dim(val) <- c(n, nsim)
+  val <- as.data.frame(val)
+  names(val) <- paste0("sim_", seq_len(nsim))
+  row.names(val) <- nm
+  attr(val, "seed") <- RNGstate
+  val
+}
