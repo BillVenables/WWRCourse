@@ -112,11 +112,15 @@ SSgompertz2 <- structure(function (x, b0, b1, rho) {
   .expr1 <- rho^x
   .expr4 <- exp(b0 - b1 * .expr1)
   .value <- .expr4
-  .grad <- array(0, c(length(.value), 3L),
-                 list(NULL, c("b0", "b1", "rho")))
+  .grad <- array(0, c(length(.value), 3L), list(NULL, c("b0",
+                                                        "b1", "rho")))
   .grad[, "b0"] <- .expr4
   .grad[, "b1"] <- -(.expr4 * .expr1)
   .grad[, "rho"] <- -(.expr4 * (b1 * (rho^(x - 1) * x)))
+  .actualArgs <- as.list(match.call())[colnames(.grad)]
+  if (all(vapply(.actualArgs, is.name, NA))) {
+    colnames(.grad) <- .actualArgs
+  }
   attr(.value, "gradient") <- .grad
   .value
 }, initial = function(mCall, data, LHS) {
@@ -139,11 +143,15 @@ SSgompertz3 <- structure(function (x, b0, b1, rho) {
   .expr1 <- rho^x
   .expr4 <- exp(b0 - b1 * .expr1)
   .value <- .expr4
-  .grad <- array(0, c(length(.value), 3L),
-                 list(NULL, c("b0", "b1", "rho")))
+  .grad <- array(0, c(length(.value), 3L), list(NULL, c("b0",
+                                                        "b1", "rho")))
   .grad[, "b0"] <- .expr4
   .grad[, "b1"] <- -(.expr4 * .expr1)
   .grad[, "rho"] <- -(.expr4 * (b1 * (rho^(x - 1) * x)))
+  .actualArgs <- as.list(match.call())[colnames(.grad)]
+  if (all(vapply(.actualArgs, is.name, NA))) {
+    colnames(.grad) <- .actualArgs
+  }
   attr(.value, "gradient") <- .grad
   .value
 }, initial = function(mCall, data, LHS) {
@@ -172,11 +180,15 @@ SSgompertz3 <- structure(function (x, b0, b1, rho) {
 SSnegexp <- structure(function (t, b0, b1, theta) {
   .expr3 <- exp(-t/theta)
   .value <- b0 + b1 * .expr3
-  .grad <- array(0, c(length(.value), 3L),
-                 list(NULL, c("b0", "b1", "theta")))
+  .grad <- array(0, c(length(.value), 3L), list(NULL, c("b0",
+                                                        "b1", "theta")))
   .grad[, "b0"] <- 1
   .grad[, "b1"] <- .expr3
   .grad[, "theta"] <- b1 * (.expr3 * (t/theta^2))
+  .actualArgs <- as.list(match.call())[colnames(.grad)]
+  if (all(vapply(.actualArgs, is.name, NA))) {
+    colnames(.grad) <- .actualArgs
+  }
   attr(.value, "gradient") <- .grad
   .value
 }, initial = function(mCall, data, LHS) {
@@ -210,10 +222,14 @@ SSstormer <- structure(function (v, w, b, c) {
   .expr1 <- b * v
   .expr2 <- w - c
   .value <- .expr1/.expr2
-  .grad <- array(0, c(length(.value), 2L),
-                 list(NULL, c("b", "c")))
+  .grad <- array(0, c(length(.value), 2L), list(NULL, c("b",
+                                                        "c")))
   .grad[, "b"] <- v/.expr2
   .grad[, "c"] <- .expr1/.expr2^2
+  .actualArgs <- as.list(match.call())[colnames(.grad)]
+  if (all(vapply(.actualArgs, is.name, NA))) {
+    colnames(.grad) <- .actualArgs
+  }
   attr(.value, "gradient") <- .grad
   .value
 }, initial = function(mCall, data, LHS) {
