@@ -1,5 +1,5 @@
 #' Modify Self-starting Model Functions
-#' 
+#'
 #' This is a work-around function to modify the output functions from \code{deriv}
 #' or \code{selfStart} to allow more flexibility when using them with \code{nlmer}
 #' from the \code{lme4} package.
@@ -14,29 +14,41 @@
 #' mod_fun_fix <- fix_deriv(mod_fun)
 fix_deriv <- function(func) {
   if(mode(func) != "function") {
+    warning("The correction only applies to objects of mode 'function'")
     return(func)
   }
   code <- as.list(body(func))
-  if(any(grepl("(actualArgs|dimnames|colnames)", code)) ||
+  if(any(grepl("(\\.actualArgs|dimnames|colnames)", code)) ||
      (sum(k <- grepl('attr\\(\\.value, "gradient"\\) <- \\.grad', code)) != 1)) {
-    warning("The function seems to have been fixed.  Check code.")
+    warning("The function seems to have been fixed already.  Check the code.")
     return(func)
   }
   attribs <- attributes(func)
   k <- which(k) - 1
-  code <- c(code[1:k],
-            list(quote(colnames(.grad) <- as.list(match.call())[colnames(.grad)])),
-            code[-(1:k)])
+  no_hessian <- !any(grepl(".hessian", code))
+  insert <- c(quote(.actualArgs <- as.list(match.call())[colnames(.grad)]),
+              if(no_hessian) {
+                quote(if(all(vapply(.actualArgs, is.name, NA))) {
+                  colnames(.grad) <- .actualArgs
+                })
+              } else {
+                quote(if(all(vapply(.actualArgs, is.name, NA))) {
+                  colnames(.grad) <- .actualArgs
+                  dimnames(.hessian) <- list(NULL, .actualArgs, .actualargs)
+                })
+              })
+  code <- c(code[1:k], insert, code[-(1:k)])
   body(func) <- as.call(code)
   attributes(func) <- attribs
   func
 }
 
+
 #' Initial Value Functions
-#' 
+#'
 #' Free-standing functions to arrive at suitable initial values for non-linear model
 #' fitting functions
-#' 
+#'
 #' @name initial_value
 #'
 #' @param x numeric vector; the independent variable
@@ -81,14 +93,14 @@ negexp_init <- function(x, y) {
 }
 
 #' Self-starting Model Functions
-#' 
+#'
 #' Self-starting model fitting functions for non-linear Gompertz Growth Curve models.
 #' The non-linear model is of the form ~ exp(b0 - b1*rho^x)
-#' 
+#'
 #' The functions are not used directly, but in non-linear model formulae
 #'
 #' @param x numeric vector, time variable or analogue
-#' @param b0,b1.rho place-holders for the parameter estimates. 
+#' @param b0,b1.rho place-holders for the parameter estimates.
 #'
 #' @return An evaluated model function, with a derivative matrix attribute
 #' @export
@@ -100,12 +112,11 @@ SSgompertz2 <- structure(function (x, b0, b1, rho) {
   .expr1 <- rho^x
   .expr4 <- exp(b0 - b1 * .expr1)
   .value <- .expr4
-  .grad <- array(0, c(length(.value), 3L), 
+  .grad <- array(0, c(length(.value), 3L),
                  list(NULL, c("b0", "b1", "rho")))
   .grad[, "b0"] <- .expr4
   .grad[, "b1"] <- -(.expr4 * .expr1)
   .grad[, "rho"] <- -(.expr4 * (b1 * (rho^(x - 1) * x)))
-  colnames(.grad) <- as.list(match.call())[colnames(.grad)]
   attr(.value, "gradient") <- .grad
   .value
 }, initial = function(mCall, data, LHS) {
@@ -128,12 +139,11 @@ SSgompertz3 <- structure(function (x, b0, b1, rho) {
   .expr1 <- rho^x
   .expr4 <- exp(b0 - b1 * .expr1)
   .value <- .expr4
-  .grad <- array(0, c(length(.value), 3L), 
+  .grad <- array(0, c(length(.value), 3L),
                  list(NULL, c("b0", "b1", "rho")))
   .grad[, "b0"] <- .expr4
   .grad[, "b1"] <- -(.expr4 * .expr1)
   .grad[, "rho"] <- -(.expr4 * (b1 * (rho^(x - 1) * x)))
-  colnames(.grad) <- as.list(match.call())[colnames(.grad)]
   attr(.value, "gradient") <- .grad
   .value
 }, initial = function(mCall, data, LHS) {
@@ -146,7 +156,7 @@ SSgompertz3 <- structure(function (x, b0, b1, rho) {
 }, pnames = c("b0", "b1", "rho"), class = "selfStart")
 
 #' Negative Exponential Model
-#' 
+#'
 #' A self-starting model fitting function for a negative exponential model.
 #' The model formula is ~ b0 + b1*exp(-t/theta)
 #'
@@ -167,7 +177,6 @@ SSnegexp <- structure(function (t, b0, b1, theta) {
   .grad[, "b0"] <- 1
   .grad[, "b1"] <- .expr3
   .grad[, "theta"] <- b1 * (.expr3 * (t/theta^2))
-  colnames(.grad) <- as.list(match.call())[colnames(.grad)]
   attr(.value, "gradient") <- .grad
   .value
 }, initial = function(mCall, data, LHS) {
@@ -184,7 +193,7 @@ SSnegexp <- structure(function (t, b0, b1, theta) {
 }, pnames = c("b0", "b1", "theta"), class = "selfStart")
 
 #' Stormer Viscometer Calibration Model
-#' 
+#'
 #' A self-starting model fitting function for the Stormer Viscometer calibration example
 #' The model fitted is ~ b*v/(w - c)
 #'
@@ -201,11 +210,10 @@ SSstormer <- structure(function (v, w, b, c) {
   .expr1 <- b * v
   .expr2 <- w - c
   .value <- .expr1/.expr2
-  .grad <- array(0, c(length(.value), 2L), 
+  .grad <- array(0, c(length(.value), 2L),
                  list(NULL, c("b", "c")))
   .grad[, "b"] <- v/.expr2
   .grad[, "c"] <- .expr1/.expr2^2
-  colnames(.grad) <- as.list(match.call())[colnames(.grad)]
   attr(.value, "gradient") <- .grad
   .value
 }, initial = function(mCall, data, LHS) {
@@ -217,7 +225,7 @@ SSstormer <- structure(function (v, w, b, c) {
 }, pnames = c("b", "c"), class = "selfStart")
 
 #' Simulation method for non-linear models
-#' 
+#'
 #' This method function is based on stats:::simulate.lm and has simular functionality
 #'
 #' @param object A fitted model object
@@ -231,11 +239,11 @@ SSstormer <- structure(function (v, w, b, c) {
 #' @examples
 #' fm <- nls(Time ~ SSstormer(Viscosity, Weight, beta, theta), data = Stormer)
 #' Times <- simulate(fm, 10, seed = 2021)
-#' 
+#'
 simulate.nls <- function (object, nsim = 1, seed = NULL, ...) {
-  if (!exists(".Random.seed", envir = .GlobalEnv, inherits = FALSE)) 
+  if (!exists(".Random.seed", envir = .GlobalEnv, inherits = FALSE))
     runif(1)
-  if (is.null(seed)) 
+  if (is.null(seed))
     RNGstate <- get(".Random.seed", envir = .GlobalEnv)
   else {
     R.seed <- get(".Random.seed", envir = .GlobalEnv)
