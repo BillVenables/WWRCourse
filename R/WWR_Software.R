@@ -44,44 +44,44 @@ untibble <- function(tibble) {
              stringsAsFactors = FALSE)
 }
 
-#' Attach multiple packages
-#'
-#' Attach a series of packages to the search path, optionally
-#' installing them if needed
-#'
-#' @param ... package names, unquoted
-#' @oaran quietly logical: suppress package startup messages?
-#'
-#' @return a list of packages attached to the search path
-#' @export
-#'
-#' @examples
-#' s0 <- search()
-#' use_packages(mgcv, lme4, splines, quietly = FALSE)
-#' setdiff(search(), s0)
-use_packages <- function (..., quietly = FALSE) {
-  pkgs <- lapply(sys.call(), deparse)[-1]
-  pkgs$quietly <- NULL
-  if(quietly) {
-    suppressPackageStartupMessages({
-      for (pkg in pkgs) {
-        if (!require(pkg, character.only = TRUE)) {
-          install.packages(pkg)
-          library(pkg, character.only = TRUE)
-        }
-      }
-    })
-  } else {
-    for (pkg in pkgs) {
-      if (!require(pkg, character.only = TRUE)) {
-        install.packages(pkg)
-        library(pkg, character.only = TRUE)
-      }
-
-    }
-  }
-  invisible(pkgs)
-}
+## #' Attach multiple packages
+## #'
+## #' Attach a series of packages to the search path, optionally
+## #' installing them if needed
+## #'
+## #' @param ... package names, unquoted
+## #' @oaran quietly logical: suppress package startup messages?
+## #'
+## #' @return a list of packages attached to the search path
+## #' @export
+## #'
+## #' @examples
+## #' s0 <- search()
+## #' use_packages(mgcv, lme4, splines, quietly = FALSE)
+## #' setdiff(search(), s0)
+## use_packages <- function (..., quietly = FALSE) {
+##   pkgs <- lapply(sys.call(), deparse)[-1]
+##   pkgs$quietly <- NULL
+##   if(quietly) {
+##     suppressPackageStartupMessages({
+##       for (pkg in pkgs) {
+##         if (!require(pkg, character.only = TRUE)) {
+##           install.packages(pkg)
+##           library(pkg, character.only = TRUE)
+##         }
+##       }
+##     })
+##   } else {
+##     for (pkg in pkgs) {
+##       if (!require(pkg, character.only = TRUE)) {
+##         install.packages(pkg)
+##         library(pkg, character.only = TRUE)
+##       }
+##
+##     }
+##   }
+##   invisible(pkgs)
+## }
 
 
 
