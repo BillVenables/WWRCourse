@@ -30,6 +30,7 @@ Depends:
     utils, 
     stats, 
     tidyverse, 
+    WWRData,
     WWRGraphics, 
     WWRUtilities
 NeedsCompilation: no
