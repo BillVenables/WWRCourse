@@ -1,7 +1,7 @@
 Package: WWRCourse
 Type: Package
 Title: Working with R Course Software and Data
-Version: 0.2.2
+Version: 0.2.3
 Author: Bill Venables
 Maintainer: Bill Venables <Bill.Venables@gmail.com>
 Description: As the title says.  Undocumented here, but explained as
