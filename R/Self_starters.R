@@ -123,7 +123,7 @@ SSgompertz2 <- structure(function (x, b0, b1, rho) {
   }
   attr(.value, "gradient") <- .grad
   .value
-}, initial = function(mCall, data, LHS) {
+}, initial = function(mCall, data, LHS, ...) {
   x <- eval(mCall[["x"]], data)
   y <- eval(LHS, data)
   r <- range(x)
@@ -154,7 +154,7 @@ SSgompertz3 <- structure(function (x, b0, b1, rho) {
   }
   attr(.value, "gradient") <- .grad
   .value
-}, initial = function(mCall, data, LHS) {
+}, initial = function(mCall, data, LHS, ...) {
   x <- eval(mCall[["x"]], data)
   y <- eval(LHS, data)
   b <- coef(nls(log(y) ~ SSnegexp(x, b0, b1, rho)))
@@ -191,7 +191,7 @@ SSnegexp <- structure(function (t, b0, b1, theta) {
   }
   attr(.value, "gradient") <- .grad
   .value
-}, initial = function(mCall, data, LHS) {
+}, initial = function(mCall, data, LHS, ...) {
   t <- eval(mCall[["t"]], data)
   y <- eval(LHS, data)
   r <- range(t)
@@ -232,7 +232,7 @@ SSstormer <- structure(function (v, w, b, c) {
   }
   attr(.value, "gradient") <- .grad
   .value
-}, initial = function(mCall, data, LHS) {
+}, initial = function(mCall, data, LHS, ...) {
   t <- eval(LHS, data)
   v <- eval(mCall[["v"]], data)
   w <- eval(mCall[["w"]], data)
