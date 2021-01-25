@@ -22,6 +22,6 @@ if all objects are equal to \code{x} as defined by
 Simple function to allow comparisons between multiple objects
 }
 \examples{
-all_same(letters, LETTERS, sort(sample(letters)))
+all_same(letters, LETTERS, sample(letters), 26)
 all_same(letters, tolower(LETTERS), sort(sample(letters)))
 }
