@@ -13,7 +13,7 @@
 #' @export
 #'
 #' @examples
-#' all_same(letters, LETTERS, sort(sample(letters)))
+#' all_same(letters, LETTERS, sample(letters), 26)
 #' all_same(letters, tolower(LETTERS), sort(sample(letters)))
 all_same <- function(x, ...) {
   same <- sapply(list(...), function(dot) isTRUE(all.equal(x, dot)))
